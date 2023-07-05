@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  user_id       String        @id @default(uuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deleted       Boolean       @default(false)
+  isVerified    Boolean?      @default(false)
+  user_email    String        @unique @db.VarChar(255)
+  user_password String        @db.VarChar(255)
+  profile       Profile?
+  costumer      Costumer?
+  employee      Employee?
+  reservation   Reservation[]
+  permission    Permission?   @relation(fields: [permission_id], references: [permission_id])
+  permission_id String
+  order         Orders[]
+
+  @@index([permission_id])
+}
+
+model Profile {
+  profile_id        String    @id @default(uuid())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deleted           Boolean   @default(false)
+  profile_firstName String    @db.VarChar(255)
+  profile_lastName  String    @db.VarChar(255)
+  profile_phone     Int       @db.Int
+  profile_address   String?   @db.VarChar(255)
+  profile_birthday  DateTime? @db.DateTime()
+  user              User      @relation(fields: [user_id], references: [user_id])
+  user_id           String    @unique
+}
+
+model Costumer {
+  costumer_id String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deleted     Boolean  @default(false)
+  user        User?    @relation(fields: [user_id], references: [user_id])
+  user_id     String   @unique
+}
+
+model Employee {
+  employee_id     String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deleted         Boolean  @default(false)
+  employee_salary Float    @db.Float
+  user            User?    @relation(fields: [user_id], references: [user_id])
+  user_id         String   @unique
+}
+
+model Reservation {
+  reservation_id        String          @id @default(uuid())
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  deleted               Boolean         @default(false)
+  reservation_date      DateTime
+  reservation_hour      DateTime
+  reservation_numPeople Int             @db.Int
+  user                  User?           @relation(fields: [user_id], references: [user_id])
+  user_id               String
+  restaurantTable       RestaurantTable @relation(fields: [restaurantTable_id], references: [restaurantTable_id])
+  restaurantTable_id    String
+  order                 Orders[]
+  bill                  Bill?
+
+  @@index([user_id])
+  @@index([restaurantTable_id])
+}
+
+model RestaurantTable {
+  restaurantTable_id     String        @id @default(uuid())
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  deleted                Boolean       @default(false)
+  restaurantTable_number Int           @unique
+  reservation            Reservation[]
+}
+
+model Orders {
+  order_id           String      @id @default(uuid())
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  deleted            Boolean     @default(false)
+  order_notes        String?     @db.VarChar(255)
+  order_running      Boolean     @default(true)
+  order_itemQuantity Int
+  reservation        Reservation @relation(fields: [reservation_id], references: [reservation_id])
+  menuItem           MenuItem    @relation(fields: [menuItem_id], references: [menuItem_id])
+  menuItem_id        String
+  user               User?       @relation(fields: [user_id], references: [user_id])
+  user_id            String
+  reservation_id     String
+
+  @@index([user_id])
+  @@index([menuItem_id])
+  @@index([reservation_id])
+}
+
+model MenuItem {
+  menuItem_id          String   @id @default(uuid())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  deleted              Boolean  @default(false)
+  menuItem_name        String   @db.VarChar(255)
+  menuItem_price       Float    @db.Float
+  menuItem_description String?  @db.VarChar(255)
+  order                Orders[]
+  menu                 Menu     @relation(fields: [menu_id], references: [menu_id])
+  menu_id              String
+
+  @@index([menu_id])
+}
+
+model Menu {
+  menu_id   String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deleted   Boolean    @default(false)
+  menu_name String     @db.VarChar(255)
+  menuItem  MenuItem[]
+}
+
+model Bill {
+  bill_id        String      @id @default(uuid())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  deleted        Boolean     @default(false)
+  bill_total     Float       @db.Float
+  bill_nif       Int?        @db.Int
+  reservation    Reservation @relation(fields: [reservation_id], references: [reservation_id])
+  reservation_id String      @unique
+
+  @@index([reservation_id])
+}
+
+model Permission {
+  permission_id          String   @id @default(uuid())
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  deleted                Boolean  @default(false)
+  permission_name        String   @db.VarChar(255)
+  permission_description String?  @db.VarChar(255)
+  user                   User[]
+}
