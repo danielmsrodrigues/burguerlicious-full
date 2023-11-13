@@ -10,3 +10,9 @@ I put great emphasis on an intuitive, visually pleasing interface. My aim was to
 🔧 Back-end:
 
 I have created several methods where users can create accounts, manage bookings, update menus, and many more. Each project is protected based on the user's permission, so if a client with an account tries to log in to the admin dashboard (or other with a different permission), it will not be allowed.
+
+
+Home: https://home-frontend-burguerlicious.vercel.app/
+Order: https://order-frontend-burgerlicious.vercel.app/
+Kitchen: https://kitchen-frontend-burgerlicious.vercel.app/
+Admin Dashboard: https://admin-frontend-burgerlicious.vercel.app/
